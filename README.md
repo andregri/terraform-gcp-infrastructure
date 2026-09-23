@@ -34,6 +34,7 @@ The bootstrap configuration creates:
 export TF_VAR_project_id=$(jq -r ".project_id" credentials.json)
 export TF_VAR_grant_iap_secured_tunnel_users_email=""
 #export GOOGLE_APPLICATION_CREDENTIALS="../credentials.json"
+
 gcloud auth application-default login
 
 make tf-cleanup FOLDER=bootstrap
@@ -50,3 +51,9 @@ make tf-init FOLDER=$FOLDER
 # or if you need to upgrade drivers: make tf-init FOLDER=$FOLDER TF_FLAGS="-upgrade"
 make tf-apply FOLDER=$FOLDER
 ```
+
+## Time to deploy GKE cluster
+| cluster type | provisioning tool | time |
+| --- | --- | --- |
+| gke zonal cluster 1 control plane, 3 worker nodes | gcloud cli | ~10m |
+| gke zonal cluster 1 control plane, 3 worker nodes | terraform | >1h |
