@@ -50,22 +50,3 @@ make tf-init FOLDER=$FOLDER
 # or if you need to upgrade drivers: make tf-init FOLDER=$FOLDER TF_FLAGS="-upgrade"
 make tf-apply FOLDER=$FOLDER
 ```
-
-## GKE
-```bash
-gcloud auth login
-
-gcloud config set project $(jq -r ".project_id" credentials.json)
-
-# Enable container service on gcp
-gcloud services enable container
-
-# Create a **zonal** kubernetes cluster "lab" with 3 worker nodes
-# zonal -> 1 control-plane node
-gcloud container clusters create lab \
-  --num-nodes 3 \
-  --machine-type e2-standard-2 \
-  --region us-central1-c \
-  --enable-secret-manager \
-  --workload-pool="$(gcloud config get-value project).svc.id.goog"
-```
