@@ -2,13 +2,12 @@
 
 Login to GCP:
 ```bash
-
+gcloud auth login
 ```
 
 ## Project hardening
 Remove the **default-allow-ssh** firewall rule:
 ```bash
-gcloud auth login
 export TF_VAR_project_id=$(jq -r ".project_id" credentials.json)
 
 gcloud compute firewall-rules delete default-allow-ssh --project ${TF_VAR_project_id}
@@ -51,9 +50,3 @@ make tf-init FOLDER=$FOLDER
 # or if you need to upgrade drivers: make tf-init FOLDER=$FOLDER TF_FLAGS="-upgrade"
 make tf-apply FOLDER=$FOLDER
 ```
-
-## Time to deploy GKE cluster
-| cluster type | provisioning tool | time |
-| --- | --- | --- |
-| gke zonal cluster 1 control plane, 3 worker nodes | gcloud cli | ~10m |
-| gke zonal cluster 1 control plane, 3 worker nodes | terraform | >1h |
