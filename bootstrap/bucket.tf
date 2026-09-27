@@ -1,6 +1,7 @@
 locals {
     terraform_module_dirs = [
-        "single-vm"
+        "single-vm",
+        "kubeadm-cluster"
     ]
 }
 
