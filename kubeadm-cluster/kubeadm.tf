@@ -59,7 +59,7 @@ resource "google_compute_instance" "kubeadm" {
   }
 
   provisioner "local-exec" {
-    when    = destroy
+    when    = create
     command = "sed -i '' '/^${each.key}/d' \"$HOME/.ssh/known_hosts\""
   }
 }
