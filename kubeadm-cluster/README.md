@@ -47,7 +47,7 @@ Run ansible playbooks:
 ansible-playbook -i kubeadm-cluster/inventory.yaml path/to/playbook.yaml
 ```
 
-Example:
+Example to init a kubeadm cluster:
 ```bash
 # init kubeadm cluster
 ansible-playbook -i kubeadm-cluster/inventory.yaml  /Users/andreagrillo/Downloads/github-personal/ansible-roles/playbooks/kubeadm-cluster/kubeadm-playbook.yaml
