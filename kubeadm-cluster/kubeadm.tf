@@ -1,20 +1,20 @@
 locals {
-  zone = "us-central1-c"
-  nodes = [ "control-plane0", "worker0" ]
-  user = "${split("@", data.google_client_openid_userinfo.me.email)[0]}_linuxacade"
+  zone  = "us-central1-c"
+  nodes = ["control-plane0", "worker0"]
+  user  = "${split("@", data.google_client_openid_userinfo.me.email)[0]}_linuxacade"
 }
 
 data "google_client_openid_userinfo" "me" {
 }
 
 resource "google_service_account" "kubeadm" {
-  for_each = toset(local.nodes)
+  for_each     = toset(local.nodes)
   account_id   = "${each.value}-sa"
   display_name = "Service Account for Kubeadm VM Instance"
 }
 
 resource "google_compute_instance" "kubeadm" {
-  for_each = toset(local.nodes)
+  for_each     = toset(local.nodes)
   name         = each.value
   machine_type = "e2-standard-2"
   zone         = local.zone
@@ -49,8 +49,6 @@ resource "google_compute_instance" "kubeadm" {
     apt install -y ansible git && \
     git clone https://github.com/andregri/ansible-roles.git /tmp/ansible-roles && \
     cd /tmp/ansible-roles && \
-    echo "hi" > hello.txt && \
-    ln -s /tmp/ansible-roles /etc && \
     ansible-playbook --inventory localhost, --connection local --extra-vars "target_hosts=localhost" playbooks/kubeadm-tools/containerd-kubeadm.yaml
   EOT
 
@@ -61,7 +59,7 @@ resource "google_compute_instance" "kubeadm" {
   }
 
   provisioner "local-exec" {
-    when = destroy
+    when    = destroy
     command = "sed -i '' '/^${each.key}/d' \"$HOME/.ssh/known_hosts\""
   }
 }
@@ -70,37 +68,52 @@ resource "local_file" "inventory" {
   filename = "${path.module}/inventory.yaml"
   content = yamlencode({
     all : {
-      children: {
-        control_plane: {
-          hosts: {
+      children : {
+        control_plane : {
+          hosts : {
             for i, node in local.nodes :
-              node => {
-                private_ip : google_compute_instance.kubeadm[node].network_interface.0.network_ip,
-                ansible_user: local.user,
-                ansible_host: node,
-                ansible_port: 22,
-                gcp_project: google_compute_instance.kubeadm[node].project,
-                gcp_zone: google_compute_instance.kubeadm[node].zone,
-                ansible_ssh_common_args: "-o StrictHostKeyChecking=accept-new -o ProxyCommand=\"gcloud compute start-iap-tunnel %h %p --listen-on-stdin --project ${google_compute_instance.kubeadm[node].project} --zone ${google_compute_instance.kubeadm[node].zone}\"",
-                ansible_private_key_file: "~/.ssh/google_compute_engine"
-              } if strcontains(node, "control-plane")
+            node => {
+              private_ip : google_compute_instance.kubeadm[node].network_interface.0.network_ip,
+              ansible_user : local.user,
+              ansible_host : node,
+              ansible_port : 22,
+              gcp_project : google_compute_instance.kubeadm[node].project,
+              gcp_zone : google_compute_instance.kubeadm[node].zone,
+              ansible_ssh_common_args : "-o StrictHostKeyChecking=accept-new -o ProxyCommand=\"gcloud compute start-iap-tunnel %h %p --listen-on-stdin --project ${google_compute_instance.kubeadm[node].project} --zone ${google_compute_instance.kubeadm[node].zone}\"",
+              ansible_private_key_file : "~/.ssh/google_compute_engine"
+            } if strcontains(node, "control-plane")
           }
         },
-        workers: {
-          hosts: {
+        workers : {
+          hosts : {
             for i, node in local.nodes :
-              node => {
-                private_ip : google_compute_instance.kubeadm[node].network_interface.0.network_ip,
-                ansible_user: local.user,
-                ansible_host: node,
-                ansible_port: 22,
-                gcp_project: google_compute_instance.kubeadm[node].project,
-                gcp_zone: google_compute_instance.kubeadm[node].zone,
-                ansible_ssh_common_args: "-o StrictHostKeyChecking=accept-new -o ProxyCommand=\"gcloud compute start-iap-tunnel %h %p --listen-on-stdin --project ${google_compute_instance.kubeadm[node].project} --zone ${google_compute_instance.kubeadm[node].zone}\"",
-                ansible_private_key_file: "~/.ssh/google_compute_engine"
-              }  if strcontains(node, "worker")
+            node => {
+              private_ip : google_compute_instance.kubeadm[node].network_interface.0.network_ip,
+              ansible_user : local.user,
+              ansible_host : node,
+              ansible_port : 22,
+              gcp_project : google_compute_instance.kubeadm[node].project,
+              gcp_zone : google_compute_instance.kubeadm[node].zone,
+              ansible_ssh_common_args : "-o StrictHostKeyChecking=accept-new -o ProxyCommand=\"gcloud compute start-iap-tunnel %h %p --listen-on-stdin --project ${google_compute_instance.kubeadm[node].project} --zone ${google_compute_instance.kubeadm[node].zone}\"",
+              ansible_private_key_file : "~/.ssh/google_compute_engine"
+            } if strcontains(node, "worker")
           }
-        } 
+        },
+        etcd : {
+          hosts : {
+            for i, node in local.etcd_nodes :
+            node => {
+              private_ip : google_compute_instance.etcd[node].network_interface.0.network_ip,
+              ansible_user : local.user,
+              ansible_host : node,
+              ansible_port : 22,
+              gcp_project : google_compute_instance.etcd[node].project,
+              gcp_zone : google_compute_instance.etcd[node].zone,
+              ansible_ssh_common_args : "-o StrictHostKeyChecking=accept-new -o ProxyCommand=\"gcloud compute start-iap-tunnel %h %p --listen-on-stdin --project ${google_compute_instance.etcd[node].project} --zone ${google_compute_instance.etcd[node].zone}\"",
+              ansible_private_key_file : "~/.ssh/google_compute_engine"
+            }
+          }
+        }
       }
     }
   })

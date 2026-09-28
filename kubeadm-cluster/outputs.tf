@@ -5,3 +5,7 @@ output "ssh_login" {
 output "gcp_user" {
   value = local.user
 }
+
+output "start_etcd" {
+  value = "etcd --listen-client-urls=http://${google_compute_instance.etcd["etcd0"].network_interface.0.network_ip}:2379 --advertise-client-urls=http://${google_compute_instance.etcd["etcd0"].network_interface.0.network_ip}:2379"
+}
