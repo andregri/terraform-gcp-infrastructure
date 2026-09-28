@@ -31,8 +31,6 @@ The bootstrap configuration creates:
 
 ```bash
 export TF_VAR_project_id=$(jq -r ".project_id" credentials.json)
-export TF_VAR_grant_iap_secured_tunnel_users_email=""
-#export GOOGLE_APPLICATION_CREDENTIALS="../credentials.json"
 
 gcloud auth application-default login
 
@@ -45,6 +43,8 @@ make tf-apply FOLDER=bootstrap
 ## Deploy infrastructure
 ```bash
 export FOLDER="single-vm"
+# export FOLDER="kubeadm-cluster"
+
 make tf-cleanup FOLDER=$FOLDER
 make tf-init FOLDER=$FOLDER
 # or if you need to upgrade drivers: make tf-init FOLDER=$FOLDER TF_FLAGS="-upgrade"

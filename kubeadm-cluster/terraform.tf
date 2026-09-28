@@ -7,12 +7,12 @@ terraform {
     }
 
     backend "gcs" {
-        bucket = "539d6ed30d7a5ada-terraform-remote-backend"
+        bucket = "2931d044721f4c0c-terraform-remote-backend"
     }
 }
 
 provider "google" {
     # Configuration options
-    project = "playground-s-11-180f8608"
+    project = "playground-s-11-63e65064"
     region = "us-central1"
 }
