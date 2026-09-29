@@ -42,6 +42,13 @@ ansible -m shell -i kubeadm-cluster/inventory.yaml etcd0 -a "ls /usr/local/bin"
 ansible -m shell -i kubeadm-cluster/inventory.yaml etcd0 -a "ls /tmp"
 ```
 
+Debug etcd systemd:
+```bash
+sudo systemctl cat etcd
+sudo systemd-analyze verify /etc/systemd/system/etcd.service
+sudo journalctl --no-pager -u etcd.service
+```
+
 Run ansible playbooks:
 ```bash
 ansible-playbook -i kubeadm-cluster/inventory.yaml path/to/playbook.yaml
@@ -49,6 +56,9 @@ ansible-playbook -i kubeadm-cluster/inventory.yaml path/to/playbook.yaml
 
 Example to init a kubeadm cluster:
 ```bash
+# init etcd cluster
+ansible-playbook -i kubeadm-cluster/inventory.yaml -e "base_path=$(pwd)/kubeadm-cluster" /Users/andreagrillo/Downloads/github-personal/ansible-roles/playbooks/etcd/cluster-playbook.yaml
+
 # init kubeadm cluster
-ansible-playbook -i kubeadm-cluster/inventory.yaml  /Users/andreagrillo/Downloads/github-personal/ansible-roles/playbooks/kubeadm-cluster/kubeadm-playbook.yaml
+ansible-playbook -i kubeadm-cluster/inventory.yaml /Users/andreagrillo/Downloads/github-personal/ansible-roles/playbooks/kubeadm-cluster/kubeadm-playbook.yaml
 ```
